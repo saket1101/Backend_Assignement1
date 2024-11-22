@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/UserModel");
 const jwt = require("jsonwebtoken");
-const {EmailSend} = require("../service/SendEmail")
+const { EmailSend } = require("../service/SendEmail");
 
 const registerUser = async (req, res) => {
   try {
@@ -73,7 +73,7 @@ const registerUser = async (req, res) => {
       The Task Manager Team
     `;
 
-    await EmailSend(email,subject, message);
+    await EmailSend(email, subject, message);
     res.status(201).json({
       success: true,
       message: "User registered successfully.",
@@ -155,4 +155,30 @@ const logoutUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, logoutUser };
+// get user profile
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password").exec();
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User profile fetched successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.error("Error in getUserProfile:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "An internal server error occurred.",
+    });
+  }
+};
+
+module.exports = { registerUser, loginUser, logoutUser, getUserProfile };
