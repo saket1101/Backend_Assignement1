@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/UserModel");
 const jwt = require("jsonwebtoken");
+const {EmailSend} = require("../service/SendEmail")
 
 const registerUser = async (req, res) => {
   try {
@@ -56,7 +57,23 @@ const registerUser = async (req, res) => {
     });
 
     await newUser.save();
+    // Construct email message
+    const subject = "Welcome to Task Manager!";
+    const message = `
+      Hi ${username},
 
+      Welcome to Task Manager! We're excited to have you on board. Here are your account details:
+
+      Username: ${username}
+      Email: ${email}
+
+      Please log in to start managing your tasks effectively.
+
+      Regards,
+      The Task Manager Team
+    `;
+
+    await EmailSend(email,subject, message);
     res.status(201).json({
       success: true,
       message: "User registered successfully.",
