@@ -30,7 +30,7 @@ app.use('/api',UserAuthRoutes)
 
 // role based and authorization routes
 const UserAuthentication = require("./src/middleware/AuthMiddleware");
-const RoleBasedAuthRoutes = require("./src/routes/RoleBasedRoutes")
+const RoleBasedAuthRoutes = require("./src/routes/RoleRoutes")
 app.use('/api',UserAuthentication,RoleBasedAuthRoutes)
 
 
