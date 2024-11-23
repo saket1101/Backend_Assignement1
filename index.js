@@ -4,6 +4,9 @@ const cors = require('cors');
 const cookieparser = require("cookie-parser")
 const swaggerJsDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+const http = require("http");
+const { Server } = require("socket.io");
+const server = http.createServer(app);
 
 // imporing .env
 require("dotenv").config();
@@ -83,6 +86,24 @@ const swaggerOptions = {
   },
   apis: ["./src/routes/*.js"],
 };
+
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  socket.on("newUser", (data) => {
+    console.log(data)
+  });
+  socket.on("disconnect", () => {
+    console.log(`someone has left ${socket.id}`);
+  });
+});
+
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
