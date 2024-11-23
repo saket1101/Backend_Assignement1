@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(cors({origin:true,credentials:true}))
 app.use(cookieparser())
 
-// startin route
+// starting route
 app.get('/',(req,res) =>{
     res.json("Welcome to Backend the backbone")
 })
@@ -27,6 +27,10 @@ app.get('/',(req,res) =>{
 // user auth routes
 const UserAuthRoutes = require('./src/routes/UserAuthRoutes');
 app.use('/api',UserAuthRoutes)
+
+// user management routes
+const UserManagementRoutes = require('./src/routes/UserManagementRoutes');
+app.use('/api',UserManagementRoutes)
 
 // role based and authorization routes
 const UserAuthentication = require("./src/middleware/AuthMiddleware");

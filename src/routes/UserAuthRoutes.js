@@ -11,7 +11,5 @@ router.post("/auth/register", registerUser);
 router.post("/auth/login", loginUser);
 router.post("/auth/logout", Auth, logoutUser);
 
-// get user profile 
-router.get('/users/profile',Auth,getUserProfile)
 
 module.exports = router;
