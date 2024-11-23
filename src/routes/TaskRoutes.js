@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const Auth = require('../middleware/AuthMiddleware');
 const verifyRole = require('../middleware/RoleMiddleware');
 const {
   createTask,
@@ -8,17 +7,18 @@ const {
   updateTask,
   deleteTask,
   getAllTaskByAdmin,
-  assignTaskByAdmin,
+  assignTaskByAdmin,updateTaskForAdminOrManager
 } = require('../controllers/TaskController');
 
 // User APIs
-router.post('/createTask', Auth, createTask);
-router.get('/getTasks', Auth, getTasks);
-router.put('/updateTask', Auth, updateTask);
-router.delete('/deleteTask', Auth, deleteTask);
+router.post('/createTask', createTask);
+router.get('/getTasks', getTasks);
+router.put('/updateTask',  updateTask);
+router.delete('/deleteTask', deleteTask);
 
 // Admin/Manager APIs
-router.get('/getAllTask', Auth, verifyRole(['admin', 'manager']), getAllTaskByAdmin);
-router.put('/assignTaskByAdmin', Auth, verifyRole(['admin', 'manager']), assignTaskByAdmin);
+router.get('/getAllTask', verifyRole(['admin', 'manager']), getAllTaskByAdmin);
+router.put('/assignTaskByAdmin', verifyRole(['admin', 'manager']), assignTaskByAdmin);
+router.put("/updateTaskForUser",verifyRole(["admin", "manager"]),updateTaskForAdminOrManager);
 
 module.exports = router;

@@ -146,11 +146,66 @@ const assignTaskByAdmin = async (req, res) => {
   }
 };
 
+
+// Admin can update any task; Manager can update tasks for team members only
+const updateTaskForAdminOrManager = async (req, res) => {
+    try {
+      const { taskId, updates } = req.body;
+      const { role, id: userId } = req.user;
+  
+      if (!taskId || !updates) {
+        return res.status(400).json({
+          success: false,
+          message: "Task ID and updates are required",
+        });
+      }
+  
+      const task = await Task.findById(taskId);
+      if (!task) {
+        return res.status(404).json({
+          success: false,
+          message: "Task not found",
+        });
+      }
+  
+      if (role === "manager") {
+        const team = await Team.findOne({ manager: userId });
+        if (!team) {
+          return res.status(403).json({
+            success: false,
+            message: "You are not managing any team.",
+          });
+        }
+  
+        if (!team.members.includes(task.assignedTo.toString())) {
+          return res.status(403).json({
+            success: false,
+            message: "You can only update tasks for your team members.",
+          });
+        }
+      }
+  
+      Object.assign(task, updates);
+      await task.save();
+  
+      res.status(200).json({
+        success: true,
+        message: "Task updated successfully.",
+        task,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  };
+  
 module.exports = {
   createTask,
   getTasks,
   updateTask,
   deleteTask,
   getAllTaskByAdmin,
-  assignTaskByAdmin,
+  assignTaskByAdmin,updateTaskForAdminOrManager
 };
