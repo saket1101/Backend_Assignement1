@@ -14,10 +14,10 @@ const {getAllUsers,getSingleUser} = require("../controllers/UserManagementContro
  * @swagger
  * /users/getAllUsers:
  *   get:
- *     summary: Get all users (Admin only)
+ *     summary: Get all users (Admin and manager only)
  *     tags: [User Management]
  *     security:
- *       - bearerAuth: []  # Requires authentication with bearer token
+ *       - cookie auth: []  # Requires authentication with cookies
  *     responses:
  *       200:
  *         description: Successfully retrieved all users
@@ -52,7 +52,7 @@ const {getAllUsers,getSingleUser} = require("../controllers/UserManagementContro
  *       500:
  *         description: Server error
  */
-router.get('/users/getAllUsers',verifyRole(["admin"]),getAllUsers);
+router.get('/users/getAllUsers',verifyRole(["admin","manager"]),getAllUsers);
 
 /**
  * @swagger

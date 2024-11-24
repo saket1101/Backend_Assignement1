@@ -15,6 +15,8 @@ const TeamSchema = new mongoose.Schema(
         members: [
             {
                 user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+                addedAt: { type: Date, default: Date.now },
+
             },
         ],
     },

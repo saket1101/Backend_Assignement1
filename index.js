@@ -23,6 +23,34 @@ app.use(express.json());
 app.use(cors({ origin: true, credentials: true }))
 app.use(cookieparser())
 
+
+
+// Initialize Socket.IO
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+
+// Middleware to attach io to req
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+// WebSocket setup
+io.on("connection", (socket) => {
+  console.log(`User connected: ${socket.id}`);
+
+  socket.on("newUser", (data) => {
+    console.log(data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`User disconnected: ${socket.id}`);
+  });
+});
 // starting route
 app.get('/api', (req, res) => {
   res.json("Welcome to Backend the backbone")
@@ -68,8 +96,8 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: "http://localhost:3100/api",
-        description: "Development server",
+        url: `${process.env.BASE_URL}/api`,
+        description:  `${process.env.ENV} server`,
       },
     ],
     components: {
@@ -88,21 +116,6 @@ const swaggerOptions = {
 };
 
 
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
-});
-
-io.on("connection", (socket) => {
-  socket.on("newUser", (data) => {
-    console.log(data)
-  });
-  socket.on("disconnect", () => {
-    console.log(`someone has left ${socket.id}`);
-  });
-});
 
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);

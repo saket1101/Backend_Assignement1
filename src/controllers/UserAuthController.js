@@ -8,10 +8,10 @@ const registerUser = async (req, res) => {
     const { username, email, password } = req.body;
 
     // input validation
-    if (!username || !email || !password || !role) {
+    if (!username || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: "All fields (username, email, password, role) are required.",
+        message: "All fields (username, email, password) are required.",
       });
     }
 
@@ -73,7 +73,14 @@ const registerUser = async (req, res) => {
       The Task Manager Team
     `;
 
-    await EmailSend(email, subject, message);
+    (async () => {
+      try {
+        await EmailSend(email, subject, message);
+        console.log(`Email sent successfully to ${email}`);
+      } catch (emailError) {
+        console.error(`Failed to send email to ${email}:`, emailError.message);
+      }
+    })();
     res.status(201).json({
       success: true,
       message: "User registered successfully.",
@@ -155,30 +162,56 @@ const logoutUser = async (req, res) => {
   }
 };
 
-// get user profile
-const getUserProfile = async (req, res) => {
+const createFirstAdmin = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password").exec();
+    const { secretKey, username, email, password } = req.body;
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+    if (secretKey !== process.env.ADMIN_SECRET) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Invalid secret key" });
     }
 
-    res.status(200).json({
-      success: true,
-      message: "User profile fetched successfully",
-      data: user,
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const admin = new User({
+      username,
+      email,
+      password: hashedPassword,
+      role: "admin",
     });
+
+    const subject = "Welcome to Task Manager!";
+    const message = `
+      Hi ${username},
+
+      Welcome to Task Manager! We're excited to have you on board. Here are your account details:
+
+      Username: ${username}
+      Email: ${email}
+
+      Please log in to start managing your tasks effectively.
+
+      Regards,
+      The Task Manager Team
+    `;
+
+    (async () => {
+      try {
+        await EmailSend(email, subject, message);
+        console.log(`Email sent successfully to ${email}`);
+      } catch (emailError) {
+        console.error(`Failed to send email to ${email}:`, emailError.message);
+      }
+    })();
+
+    await admin.save();
+    res
+      .status(201)
+      .json({ success: true, message: "Admin created successfully", admin });
   } catch (error) {
-    console.error("Error in getUserProfile:", error.message);
-    res.status(500).json({
-      success: false,
-      message: "An internal server error occurred.",
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-module.exports = { registerUser, loginUser, logoutUser, getUserProfile };
+
+module.exports = { registerUser, loginUser, logoutUser, createFirstAdmin };

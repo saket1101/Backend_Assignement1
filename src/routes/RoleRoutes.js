@@ -1,7 +1,7 @@
 /**
  * @swagger
  * tags:
- *   name: Role
+ *   name: Roles
  *   description: Role APIs
  */
 const express = require("express");
@@ -32,7 +32,7 @@ const {assignRole} = require("../controllers/RoleController")
  *           properties:
  *             role:
  *               type: string
- *               enum: [admin, manager, user]  # You can add more roles as per your application's requirements
+ *               enum: [admin, manager, user]
  *               description: The role to be assigned to the user
  *     security:
  *       - bearerAuth: []  # Indicates that this API requires authentication via bearer token

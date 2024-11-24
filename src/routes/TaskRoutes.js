@@ -4,22 +4,24 @@
  *   name: Tasks
  *   description: Task management APIs
  */
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const verifyRole = require('../middleware/RoleMiddleware');
+const verifyRole = require("../middleware/RoleMiddleware");
 const {
   createTask,
   getTasks,
   updateTask,
   deleteTask,
   getAllTaskByAdmin,
-  assignTaskByAdmin,updateTaskForAdminOrManager
-} = require('../controllers/TaskController');
+  assignTaskByAdmin,
+  updateTaskForAdminOrManager,
+  getTaskAnalytics,
+} = require("../controllers/TaskController");
 
 // User APIs
 /**
  * @swagger
- * /createTask:
+ * /task/createTask:
  *   post:
  *     summary: Create a new task
  *     tags: [Tasks]
@@ -59,11 +61,11 @@ const {
  *       500:
  *         description: Server error
  */
-router.post('/createTask', createTask);
+router.post("/task/createTask", createTask);
 
 /**
  * @swagger
- * /getTasks:
+ * /task/getTasks:
  *   get:
  *     summary: Get all tasks for the logged-in user
  *     tags: [Tasks]
@@ -72,7 +74,7 @@ router.post('/createTask', createTask);
  *         name: status
  *         schema:
  *           type: string
- *           enum: [pending, in-progress, completed]
+ *           enum: [Ppending, in-progress, completed]
  *         description: Filter tasks by status
  *       - in: query
  *         name: priority
@@ -97,11 +99,11 @@ router.post('/createTask', createTask);
  *       500:
  *         description: Server error
  */
-router.get('/getTasks', getTasks);
+router.get("/task/getTasks", getTasks);
 
 /**
  * @swagger
- * /updateTask:
+ * /task/updateTask:
  *   put:
  *     summary: Update an existing task
  *     tags: [Tasks]
@@ -142,11 +144,11 @@ router.get('/getTasks', getTasks);
  *       500:
  *         description: Server error
  */
-router.put('/updateTask',  updateTask);
+router.put("/task/updateTask", updateTask);
 
 /**
  * @swagger
- * /deleteTask:
+ * /task/deleteTask:
  *   delete:
  *     summary: Delete a task by ID
  *     tags: [Tasks]
@@ -165,17 +167,17 @@ router.put('/updateTask',  updateTask);
  *       500:
  *         description: Server error
  */
-router.delete('/deleteTask', deleteTask);
+router.delete("/task/deleteTask", deleteTask);
 
 // Admin/Manager APIs
 /**
  * @swagger
- * /getAllTask:
+ * /task/getAllTask:
  *   get:
  *     summary: Get all tasks (Admin/Manager)
  *     tags: [Tasks]
  *     security:
- *       - bearerAuth: []
+ *       - cookieToken: []
  *     parameters:
  *       - in: query
  *         name: status
@@ -205,12 +207,15 @@ router.delete('/deleteTask', deleteTask);
  *       500:
  *         description: Server error
  */
-router.get('/getAllTask', verifyRole(['admin', 'manager']), getAllTaskByAdmin);
-
+router.get(
+  "/task/getAllTask",
+  verifyRole(["admin", "manager"]),
+  getAllTaskByAdmin
+);
 
 /**
  * @swagger
- * /assignTaskByAdmin:
+ * /task/assignTaskByAdmin:
  *   put:
  *     summary: Assign a task by an Admin or Manager
  *     tags: [Tasks]
@@ -240,16 +245,20 @@ router.get('/getAllTask', verifyRole(['admin', 'manager']), getAllTaskByAdmin);
  *       500:
  *         description: Server error
  */
-router.put('/assignTaskByAdmin', verifyRole(['admin', 'manager']), assignTaskByAdmin);
+router.put(
+  "/task/assignTaskByAdmin",
+  verifyRole(["admin", "manager"]),
+  assignTaskByAdmin
+);
 
 /**
  * @swagger
- * /updateTaskForUser:
+ * /task/updateTaskForUser:
  *   put:
  *     summary: Update a task for a user by Admin or Manager
  *     tags: [Tasks]
  *     security:
- *       - bearerAuth: []
+ *       - cookieAuth: []
  *     parameters:
  *       - in: body
  *         name: updateTaskForUser
@@ -289,6 +298,69 @@ router.put('/assignTaskByAdmin', verifyRole(['admin', 'manager']), assignTaskByA
  *       500:
  *         description: Server error
  */
-router.put("/updateTaskForUser",verifyRole(["admin", "manager"]),updateTaskForAdminOrManager);
+router.put(
+  "/task/updateTaskForUser",
+  verifyRole(["admin", "manager"]),
+  updateTaskForAdminOrManager
+);
+
+/**
+ * @swagger
+ * /task/analytics:
+ *   get:
+ *     summary: Get task analytics (by user or team)
+ *     description: Retrieve task analytics data, including completed, pending, and overdue tasks by user or team.
+ *     tags: [Tasks]
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         description: Filter tasks by user ID.
+ *       - in: query
+ *         name: teamId
+ *         schema:
+ *           type: string
+ *         description: Filter tasks by team ID.
+ *     responses:
+ *       200:
+ *         description: Analytics data successfully fetched.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Task analytics fetched successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       user:
+ *                         type: string
+ *                         example: 'John Doe'
+ *                       totalTasks:
+ *                         type: integer
+ *                         example: 20
+ *                       completedTasks:
+ *                         type: integer
+ *                         example: 15
+ *                       pendingTasks:
+ *                         type: integer
+ *                         example: 5
+ *                       overdueTasks:
+ *                         type: integer
+ *                         example: 2
+ *       404:
+ *         description: Team not found (if teamId is provided and the team doesn't exist)
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/task/analytics", getTaskAnalytics);
 
 module.exports = router;

@@ -1,7 +1,7 @@
 /**
  * @swagger
  * tags:
- *   name: Team
+ *   name: Teams
  *   description: Team management APIs
  */
 const express = require("express");
@@ -11,7 +11,7 @@ const { createTeam, getAllTeams, getSingleTeam } = require("../controllers/TeamC
 
 /**
  * @swagger
- * /createTeam:
+ * /team/createTeam:
  *   post:
  *     summary: Create a new team
  *     tags: [Teams]
@@ -32,7 +32,7 @@ const { createTeam, getAllTeams, getSingleTeam } = require("../controllers/TeamC
  *                 example: 646d4e8e8495c5c3ad98a2d2
  *               members:
  *                 type: array
- *                 items:
+ *             items:
  *                   type: object
  *                   properties:
  *                     user:
@@ -44,12 +44,12 @@ const { createTeam, getAllTeams, getSingleTeam } = require("../controllers/TeamC
  *       500:
  *         description: Internal server error
  */
-router.post("/createTeam", verifyRole(["admin", "manager"]), createTeam);
+router.post("/team/createTeam", verifyRole(["admin", "manager"]), createTeam);
 
 /**
  * @swagger
- * /getAllTeams:
- *   post:
+ * /team/getAllTeams:
+ *   get:
  *     summary: Get all teams
  *     tags: [Teams]
  *     security:
@@ -75,12 +75,12 @@ router.post("/createTeam", verifyRole(["admin", "manager"]), createTeam);
  *       500:
  *         description: Internal server error
  */
-router.post("/getAllTeams", verifyRole(["admin"]), getAllTeams);
+router.get("/team/getAllTeams", verifyRole(["admin","manager"]), getAllTeams);
 
 /**
  * @swagger
- * /getSingleTeam/{id}:
- *   post:
+ * /team/getSingleTeam/{id}:
+ *   get:
  *     summary: Get details of a single team
  *     tags: [Teams]
  *     security:
@@ -113,6 +113,6 @@ router.post("/getAllTeams", verifyRole(["admin"]), getAllTeams);
  *       500:
  *         description: Internal server error
  */
-router.post("/getSingleTeam/:id", verifyRole(["admin", "manager"]), getSingleTeam);
+router.get("/team/getSingleTeam/:id", verifyRole(["admin", "manager"]), getSingleTeam);
 
 module.exports = router;

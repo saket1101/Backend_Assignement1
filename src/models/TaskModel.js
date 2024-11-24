@@ -17,12 +17,12 @@ const TaskSchema = new mongoose.Schema(
     },
     priority: {
       type: String,
-      enum: ['Low', 'Medium', 'High'],
-      default: 'Medium',
+      enum: ['low', 'medium', 'high'],
+      default: 'medium',
     },
     status: {
       type: String,
-      enum: ['Pending', 'In Progress', 'Completed', 'On Hold', 'Cancelled'],
+      enum: ['pending', 'in-progress', 'completed'],
       default: 'Pending',
     },
     assignedBy: {
